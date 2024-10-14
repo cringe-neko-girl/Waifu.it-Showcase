@@ -24,7 +24,7 @@
 </div>
 
 <img src="https://cdn.discordapp.com/avatars/1290474404416851988/b298c0ebe2c3079978896cbb5f8a9246.webp" width="130px" height="100%" align="left" />
-<img src="https://cdn.discordapp.com/banners/1290474404416851988/3fddbf9fcc60a2977b42ef95efb799fa.png" width="150" align="left" />
+<img src="https://cdn.discordapp.com/banners/1290474404416851988/3fddbf9fcc60a2977b42ef95efb799fa.png" width="100" align="left" />
 
 `Waifu.it | Showcase` showcases the capabilities of the Waifu.it API, acting as a bridge and offering direct links to resources that are publicly available through our API. Access the API at [waifu.it](https://waifu.it) (opens in a new tab). Explore the [docs](https://docs.waifu.it) (opens in a new tab) for more details.
 
