@@ -1,11 +1,21 @@
 <div align="center">
     <h1>🎉 # Waifu.it Bot | Showcase </h1>
     <div>
-        <img src="https://img.shields.io/github/contributors/WaifuAPI/Waifu.it?color=%236CB4EE" />
-        <img alt="GitHub issues" src="https://img.shields.io/github/issues/WaifuAPI/Waifu.it?color=%236CB4EE">
-        <img alt="Pull requests" src="https://img.shields.io/github/issues-pr/WaifuAPI/Waifu.it?color=%236CB4EE">
-        <img alt="Website" src="https://img.shields.io/website?url=https%3A%2F%2Fwaifu.it">
-        <img alt="Discord Server" src="https://img.shields.io/discord/479300008118714388?color=%236CB4EE">
+        <a href="https://github.com/WaifuAPI/Waifu.it" target="_blank">
+            <img src="https://img.shields.io/github/contributors/WaifuAPI/Waifu.it?color=%236CB4EE" />
+        </a>
+        <a href="https://github.com/WaifuAPI/Waifu.it/issues" target="_blank">
+            <img alt="GitHub issues" src="https://img.shields.io/github/issues/WaifuAPI/Waifu.it?color=%236CB4EE">
+        </a>
+        <a href="https://github.com/WaifuAPI/Waifu.it/pulls" target="_blank">
+            <img alt="Pull requests" src="https://img.shields.io/github/issues-pr/WaifuAPI/Waifu.it?color=%236CB4EE">
+        </a>
+        <a href="https://waifu.it" target="_blank">
+            <img alt="Website" src="https://img.shields.io/website?url=https%3A%2F%2Fwaifu.it">
+        </a>
+        <a href="https://discord.gg/479300008118714388" target="_blank">
+            <img alt="Discord Server" src="https://img.shields.io/discord/479300008118714388?color=%236CB4EE">
+        </a>
     </div>
 </div>
 
@@ -16,19 +26,7 @@
 
 ### Waifu.it
 
-`Waifu.it | Showcase` showcases the capabilities of the Waifu.it API, acting as a bridge and offering direct links to resources that are publicly available through our API. Access the API at [waifu.it](https://waifu.it). Explore the [docs](docs.waifu.it) for more details.
-
-
-
-
-
-
-
-
-
-
-
-
+`Waifu.it | Showcase` showcases the capabilities of the Waifu.it API, acting as a bridge and offering direct links to resources that are publicly available through our API. Access the API at [waifu.it](https://waifu.it) (opens in a new tab). Explore the [docs](https://docs.waifu.it) (opens in a new tab) for more details.
 
 1. **Install Dependencies**
     ```bash
