@@ -1,4 +1,4 @@
-import json 
+import json
 import os
 import logging
 import discord
@@ -26,11 +26,7 @@ class CustomFormatter(logging.Formatter):
             record.msg = f"{LogColors.ERROR}{record.msg}{LogColors.ENDC}"
         return super().format(record)
 
-# Set up logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-for handler in logging.getLogger().handlers:
-    handler.setFormatter(CustomFormatter())
-
+# Help class to manage command help system
 class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -87,34 +83,36 @@ class Help(commands.Cog):
         else:
             """Lists all available commands."""
             embed = discord.Embed(title=self.help_data.title, description=self.help_data.description)
-            cog_field_added = False
-            command_field_added = False
-            
-            # Loop through each cog to list commands
+
+            # Create categories for commands
+            images_commands = []
+            texts_commands = []
+            interactions_commands = []
+
+            # Loop through each cog to categorize commands
             for cog_name, commands_list in cog_commands.items():
                 visible_commands_cog = [cmd for cmd in commands_list if not self.bot.get_command(cmd).hidden]
                 if visible_commands_cog:
-                    cog_field_added = True
-                    command_string_cog = '\t'.join([f"`{cmd}`" for cmd in visible_commands_cog])
-                    
-                    # Split long command strings into chunks that fit Discord's embed limit
-                    while len(command_string_cog) > 1024:
-                        split_index = command_string_cog.rfind('\t', 0, 1024)
-                        if split_index == -1:
-                            split_index = 1024  # Fallback to 1024 if no tab found
+                    # Assign commands to the respective categories based on cog names
+                    if 'Images' in cog_name:
+                        images_commands.extend(visible_commands_cog)
+                    elif 'Texts' in cog_name:
+                        texts_commands.extend(visible_commands_cog)
+                    elif 'Interactions' in cog_name:
+                        interactions_commands.extend(visible_commands_cog)
 
-                        embed.add_field(name=cog_name.title().replace('_', ''), value=command_string_cog[:split_index], inline=False)
-                        command_string_cog = command_string_cog[split_index + 1:]  # Remove added chunk
+            # Add commands from each category to the embed
+            if images_commands:
+                embed.add_field(name="Images", value='\t'.join([f"`{cmd}`" for cmd in images_commands]), inline=False)
+            if texts_commands:
+                embed.add_field(name="Texts", value='\t'.join([f"`{cmd}`" for cmd in texts_commands]), inline=False)
+            if interactions_commands:
+                embed.add_field(name="Interactions", value='\t'.join([f"`{cmd}`" for cmd in interactions_commands]), inline=False)
 
-                    # Add remaining commands for this cog if any
-                    if command_string_cog:
-                        embed.add_field(name=cog_name.title().replace('_', ''), value=command_string_cog, inline=False)
-
-            # Get visible commands for the main bot
+            # Get visible commands for the main bot (not in a specific cog)
             ignored_commands = {"waifu", "husbando"}
             visible_commands = [cmd.name for cmd in self.bot.commands if not cmd.hidden and cmd.name not in ignored_commands]
             if visible_commands:
-                command_field_added = True
                 command_string = '\t'.join([f"`{cmd}`" for cmd in visible_commands])
                 
                 # Split long command strings into chunks that fit Discord's embed limit
@@ -130,14 +128,15 @@ class Help(commands.Cog):
                 if command_string:
                     embed.add_field(name="Interactions", value=command_string, inline=False)
 
-            # Ensure at least one field was added before replying
-            if cog_field_added or command_field_added:
+            # Ensure the embed is not empty
+            if embed.fields:
                 embed.set_thumbnail(url=self.help_data.set_thumbnail)
                 embed.set_image(url=self.help_data.set_image)
                 await ctx.reply(embed=embed, mention_author=False)
             else:
                 await ctx.send("No available commands found.")
 
+# Help data structure for displaying information
 class _Help:
     def __init__(self):
         self.title = "Help | Command List"
