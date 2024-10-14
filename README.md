@@ -24,7 +24,7 @@
 </div>
 
 <img src="https://cdn.discordapp.com/avatars/1290474404416851988/b298c0ebe2c3079978896cbb5f8a9246.webp" width="130px" height="100%" align="left" />
-<img src="https://cdn.discordapp.com/banners/1290474404416851988/3fddbf9fcc60a2977b42ef95efb799fa.png" width="350" align="left" />
+<img src="https://cdn.discordapp.com/banners/1290474404416851988/3fddbf9fcc60a2977b42ef95efb799fa.png" width="150" align="left" />
 
 ---
 
