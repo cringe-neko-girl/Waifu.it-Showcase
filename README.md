@@ -26,7 +26,7 @@
 
 ### Waifu.it
 
-`Waifu.it | Showcase` showcases the capabilities of the Waifu.it API, acting as a bridge and offering direct links to resources that are publicly available through our API. Access the API at [waifu.it](https://waifu.it) (opens in a new tab). Explore the [docs](https://docs.waifu.it) (opens in a new tab) for more details.
+`Waifu.it | Showcase` showcases the capabilities of the Waifu.it API, acting as a bridge and offering direct links to resources that are publicly available through our API. Access the API at [waifu.it](https://waifu.it). Explore the [docs](https://docs.waifu.it) for more details.
 
 1. **Install Dependencies**
     ```bash
