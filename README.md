@@ -2,7 +2,7 @@
 
 <div align="center">
     <h1>🎉 Waifu.it Unleashed!</h1>
-    <img width="256" height="256" src="https://avatars.githubusercontent.com/u/79479798?s=200&v=4" />
+    <img width="120" height="120" src="https://cdn.discordapp.com/avatars/1290474404416851988/b298c0ebe2c3079978896cbb5f8a9246.webp?size=160" alt="Waifu.it Bot" />
     <h3>🌟 <b>A Random API Serving Anime Wonders</b></h3>
     <div>
         <img src="https://img.shields.io/github/contributors/WaifuAPI/Waifu.it?color=%236CB4EE" />
