@@ -4,6 +4,7 @@ import aiohttp
 import discord
 from discord.ext import commands
 from discord.ui import Button, View
+import random  # To randomly select an expression
 
 class Interactions(commands.Cog):
     def __init__(self, bot):
@@ -90,6 +91,14 @@ class Interactions(commands.Cog):
         python_button = Button(label="Python Example", style=discord.ButtonStyle.primary)
         js_button = Button(label="JavaScript Example", style=discord.ButtonStyle.primary)
 
+        # Random button
+        random_button = Button(emoji="🔀", style=discord.ButtonStyle.secondary)
+        
+        # Callback for the Random button (refreshes the same expression)
+        async def random_button_callback(interaction):
+            embed, button_view = await self.create_embed(expression, user)
+            await interaction.response.edit_message(embed=embed, view=button_view)  # Update the message with the same embed
+
         async def python_example_callback(interaction):
             await interaction.response.send_message(
                 self.python_example.replace('{expression}', expression), ephemeral=True
@@ -102,9 +111,11 @@ class Interactions(commands.Cog):
 
         python_button.callback = python_example_callback
         js_button.callback = js_example_callback
+        random_button.callback = random_button_callback
 
         button_view.add_item(python_button)
         button_view.add_item(js_button)
+        button_view.add_item(random_button)  # Add the random button to the view
 
         return embed, button_view
 
