@@ -110,11 +110,11 @@ class Help(commands.Cog):
                 embed.add_field(name="Interactions", value='\t'.join([f"`{cmd}`" for cmd in interactions_commands]), inline=False)
 
             # Get visible commands for the main bot (not in a specific cog)
-            ignored_commands = {"waifu", "husbando"}
+            ignored_commands = {"fact", "password", "quote", "owoify", "uvuify", "uwuify"}
             visible_commands = [cmd.name for cmd in self.bot.commands if not cmd.hidden and cmd.name not in ignored_commands]
             if visible_commands:
                 command_string = '\t'.join([f"`{cmd}`" for cmd in visible_commands])
-                
+
                 # Split long command strings into chunks that fit Discord's embed limit
                 while len(command_string) > 1024:
                     split_index = command_string.rfind('\t', 0, 1024)
