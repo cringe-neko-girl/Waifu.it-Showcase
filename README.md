@@ -6,7 +6,7 @@
     <h1>🎉 Waifu.it | Showcase </h1>
     <div>
         <a href="https://github.com/WaifuAPI/Waifu.it" target="_blank">
-            <img src="https://img.shields.io/github/contributors/WaifuAPI/Waifu.it?color=%236CB4EE" alt="Contributors" />
+            <img src="https://img.shields.io/github/contributors/cringe-neko-girl/Waifu.it-Showcase?color=%236CB4EE" alt="Contributors" />
         </a>
         <a href="https://github.com/WaifuAPI/Waifu.it/issues" target="_blank">
             <img src="https://img.shields.io/github/issues/WaifuAPI/Waifu.it?color=%236CB4EE" alt="GitHub issues" />
