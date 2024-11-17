@@ -1,14 +1,9 @@
 import os
-import logging 
-
-import aiohttp 
+import logging
+import aiohttp
 import discord
 from discord.ext import commands
 
-
-import discord
-import aiohttp
-import os
 
 class View(discord.ui.View):
     def __init__(self, ctx, waifu_data, api_url, items_per_page=1, items_per_section=5):
