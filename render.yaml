@@ -1,0 +1,12 @@
+services:
+  - name: discord-bot
+    type: web
+    env: python
+    plan: free  # Use 'starter' for paid tier if your bot needs more resources
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python main.py"  # Replace with the entry point of your bot
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false  # Set to false to manually configure the token in Render's dashboard
+    healthCheckPath: "/"  # Optional, you can configure an endpoint or use default health checks
+    autoDeploy: true  # Automatically deploy new commits from your branch
