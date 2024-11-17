@@ -13,3 +13,4 @@ services:
     repo: https://github.com/cringe-neko-girl/Waifu.it-Showcase.git
     pullRequestPreviews: false
     autoDeploy: true
+    restartPolicy: always   # Ensures the service automatically restarts on failure but prevents double execution
