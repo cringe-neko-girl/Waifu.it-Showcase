@@ -1,9 +1,9 @@
 services:
-  - type: web
+  - type: worker  # Change from 'web' to 'worker' if it's a background process
     name: discord-bot
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python main.py"  # Replace 'bot.py' with the entry script of your bot
+    startCommand: "python main.py"  # Ensure 'main.py' is the correct script for your bot
     envVars:
       - key: TOKEN
         value: ${TOKEN}
@@ -13,4 +13,4 @@ services:
     repo: https://github.com/cringe-neko-girl/Waifu.it-Showcase.git
     pullRequestPreviews: false
     autoDeploy: true
-    restartPolicy: always   # Ensures the service automatically restarts on failure but prevents double execution
+    restartPolicy: always
