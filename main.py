@@ -5,8 +5,9 @@ import traceback
 import asyncio
 import aiohttp  # Import aiohttp for asynchronous HTTP requests
 import logging  # Import the logging module
-
-
+import discord
+from discord.ext import commands
+from aiohttp import web
 
 from Imports.discord_imports import *  # Ensure this is correctly defined
 from Cogs.help import Help  # Import the Help class; ensure it's a subclass of HelpCommand
@@ -29,9 +30,6 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
-
-
-
 
 class BotSetup(commands.AutoShardedBot):
     def __init__(self):
@@ -120,5 +118,16 @@ async def main():
         await bot.close()
         logger.info("Bot closed.")
 
+# Create a simple HTTP server to bind to a port
+async def start_http_server():
+    app = web.Application()
+    app.router.add_get('/', lambda request: web.Response(text="Bot is running"))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', 8080)  # Bind to port 8080
+    await site.start()
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    loop.create_task(start_http_server())  # Start the HTTP server
+    loop.run_until_complete(main())  # Run the bot
