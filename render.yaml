@@ -1,12 +1,13 @@
+# render.yaml
 services:
   - name: discord-bot
     type: web
     env: python
-    plan: free  # Use 'starter' for paid tier if your bot needs more resources
+    plan: free # Adjust if you need a higher tier
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python main.py"  # Replace with the entry point of your bot
+    startCommand: "python main.py" # Update 'main.py' to your bot's entry point
     envVars:
-      - key: DISCORD_TOKEN
-        sync: false  # Set to false to manually configure the token in Render's dashboard
-    healthCheckPath: "/"  # Optional, you can configure an endpoint or use default health checks
-    autoDeploy: true  # Automatically deploy new commits from your branch
+      - key: TOKEN
+        value: "your_discord_bot_token_here" # Replace with your bot token
+      - key: Waifu_Token
+        value: "your_waifu_token_here" # Replace with your waifu token
