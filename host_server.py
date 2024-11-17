@@ -1,9 +1,8 @@
 from aiohttp import web
 import logging
+from io import StringIO
 
-logger = logging.getLogger(__name__)
-
-# HTML for the modern status page
+# Modern HTML for the status page
 HTML_PAGE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -37,32 +36,43 @@ HTML_PAGE = """
 </html>
 """
 
-async def start_http_server(log_buffer):
+# In-memory log buffer
+log_buffer = StringIO()
+
+async def status_page(request):
+    """Serve the HTML status page."""
+    log_buffer.seek(0)
+    logs = log_buffer.read()[-10000:]  # Show the last 10,000 characters of logs
+    return web.Response(text=HTML_PAGE.format(log=logs), content_type="text/html")
+
+async def fetch_logs(request):
+    """Serve raw logs for debugging."""
+    log_buffer.seek(0)
+    logs = log_buffer.read()[-10000:]
+    return web.Response(text=logs, content_type="text/plain")
+
+def setup_logging():
+    """Set up logging."""
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.StreamHandler(log_buffer),  # In-memory log buffer
+            logging.StreamHandler()  # Console
+        ]
+    )
+    return logging.getLogger("HTTPServer")
+
+logger = setup_logging()
+
+async def start_http_server():
+    """Start the HTTP server."""
     app = web.Application()
-
-    async def status_page(request):
-        try:
-            log_buffer.seek(0)  # Move to the beginning of the buffer
-            logs = log_buffer.read()[-10000:]  # Read the last 10,000 characters
-            return web.Response(text=HTML_PAGE.format(log=logs), content_type="text/html")
-        except Exception as e:
-            logger.error(f"Error serving status page: {e}")
-            return web.Response(text="An error occurred.", status=500)
-
-    async def fetch_logs(request):
-        try:
-            log_buffer.seek(0)
-            logs = log_buffer.read()[-10000:]
-            return web.Response(text=logs, content_type="text/plain")
-        except Exception as e:
-            logger.error(f"Error fetching logs: {e}")
-            return web.Response(text="An error occurred.", status=500)
-
     app.router.add_get("/", status_page)
     app.router.add_get("/logs", fetch_logs)
-
+    
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", 8080)
     await site.start()
-    logger.info("HTTP server running on port 8080.")
+    logger.info("HTTP server started on port 8080.")
