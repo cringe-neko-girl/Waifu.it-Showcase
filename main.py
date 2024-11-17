@@ -16,6 +16,8 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+os.system("pip install --upgrade pip")
+
 # Configure logging
 logging.basicConfig(
     level=logging.DEBUG,  # Set the logging level to DEBUG
@@ -26,6 +28,9 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+
+
 
 class BotSetup(commands.AutoShardedBot):
     def __init__(self):
