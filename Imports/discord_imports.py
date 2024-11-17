@@ -23,5 +23,3 @@ from discord.utils import get
 # Discord Slash Commands
 from discord import app_commands, TextChannel, Thread
 from typing import Literal, Optional, List, Dict, Union
-
-discord_imports.py
