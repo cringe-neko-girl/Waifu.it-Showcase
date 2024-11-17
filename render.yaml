@@ -1,13 +1,15 @@
-# render.yaml
 services:
-  - name: discord-bot
-    type: web
+  - type: web
+    name: discord-bot
     env: python
-    plan: free # Adjust if you need a higher tier
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python main.py" # Update 'main.py' to your bot's entry point
+    startCommand: "python bot.py"  # Replace 'bot.py' with the entry script of your bot
     envVars:
       - key: TOKEN
-        value: "your_discord_bot_token_here" # Replace with your bot token
+        value: ${TOKEN}
       - key: Waifu_Token
-        value: "your_waifu_token_here" # Replace with your waifu token
+        value: ${Waifu_Token}
+    branch: main
+    repo: https://github.com/cringe-neko-girl/Waifu.it-Showcase.git
+    pullRequestPreviews: false
+    autoDeploy: true
