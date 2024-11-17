@@ -89,7 +89,7 @@ class Texts(commands.Cog):
             embed.set_footer(text=f"ID: {fact_id}\t\tPowered by waifu.it")
 
             # Update the message with a new fact
-            await interaction.response.edit_message(embed=embed)
+            await button.response.edit_message(embed=embed)
 
         elif button.custom_id == 'random_quote':
             quote_text, quote_id = await self.fetch_quote()
@@ -101,7 +101,7 @@ class Texts(commands.Cog):
             embed.set_footer(text=f"ID: {quote_id}\nPowered by waifu.it", icon_url=self.bot.user.avatar)
 
             # Update the message with a new quote
-            await interaction.response.edit_message(embed=embed)
+            await button.response.edit_message(embed=embed)
 
     async def owoify_text(self, ctx, mode: str, text: str):
         """Helper function to interact with the waifu.it API."""
