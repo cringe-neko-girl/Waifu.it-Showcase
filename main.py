@@ -6,6 +6,35 @@ import asyncio
 import aiohttp  # Import aiohttp for asynchronous HTTP requests
 import logging  # Import the logging module
 
+
+
+# Discord Imports
+import discord
+from discord.ext import commands
+from discord.ext.commands import (
+    BucketType, Context, Greedy, bot_has_permissions, check, cooldown, group, has_permissions, has_role
+)
+from discord.enums import ChannelType, Status
+from discord.errors import Forbidden, HTTPException, NotFound
+
+from discord.ext.commands import (
+    BadArgument, BotMissingPermissions, BotMissingRole, CheckFailure, CommandError, CommandInvokeError,
+    CommandNotFound, CommandOnCooldown, ExtensionError, ExtensionFailed, ExtensionNotFound, MaxConcurrencyReached,
+    MissingPermissions, MissingRole, NoPrivateMessage, NotOwner, UserInputError
+)
+from discord.ext.commands.converter import (
+    ColorConverter, EmojiConverter, MemberConverter, RoleConverter, TextChannelConverter
+)
+
+from discord.ui import Select, View, Button
+from discord.utils import get
+
+
+# Discord Slash Commands
+from discord import app_commands, TextChannel, Thread
+from typing import Literal, Optional, List, Dict, Union
+
+
 from discord.ext import commands  # Make sure to import commands from discord
 # from Imports.discord_imports import *  # Ensure this is correctly defined
 from Cogs.help import Help  # Import the Help class; ensure it's a subclass of HelpCommand
