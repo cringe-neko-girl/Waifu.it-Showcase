@@ -3,7 +3,7 @@ services:
     name: discord-bot
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python bot.py"  # Replace 'bot.py' with the entry script of your bot
+    startCommand: "python main.py"  # Replace 'bot.py' with the entry script of your bot
     envVars:
       - key: TOKEN
         value: ${TOKEN}
