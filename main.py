@@ -7,7 +7,7 @@ import aiohttp  # Import aiohttp for asynchronous HTTP requests
 import logging  # Import the logging module
 
 from discord.ext import commands  # Make sure to import commands from discord
-from Imports.discord_imports import *  # Ensure this is correctly defined
+# from Imports.discord_imports import *  # Ensure this is correctly defined
 from Cogs.help import Help  # Import the Help class; ensure it's a subclass of HelpCommand
 
 from colorama import Fore, Style  # Import Fore and Style explicitly
