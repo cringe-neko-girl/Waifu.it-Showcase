@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import aiohttp
-import random
 import os
 
 class Texts(commands.Cog):
@@ -9,80 +8,100 @@ class Texts(commands.Cog):
         self.bot = bot
         self.access_token = os.getenv('Waifu_Token')
 
-
-    @commands.command(name='fact')
-    async def fact(self, ctx):
+    async def fetch_fact(self):
+        """Fetch a random fact from the waifu.it API."""
         url = "https://waifu.it/api/v4/fact"
-        headers = {
-            "Authorization": self.access_token
-        }
+        headers = {"Authorization": self.access_token}
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 if response.status == 200:
                     data = await response.json()
                     fact_text = data.get('fact', 'No fact found.')
-
-                    # Create an embed with the fact
-                    embed = discord.Embed(
-                        title="Random Anime Fact",
-                        description=f"```{fact_text}```",
-                        color=discord.Color.random()
-
-                    )
-                    embed.set_footer(text=f"ID: {data['_id']}\t\tPowered by waifu.it")
-
-                    await ctx.reply(embed=embed, mention_author=False)
+                    return fact_text, data['_id']
                 else:
-                    await ctx.send(f"Request failed with status: {response.status}", mention_author=False)
+                    return "Request failed", None
 
-        
-    @commands.command(name='password')
-    async def password(self, ctx, length: int = 12):
-        url = "https://waifu.it/api/v4/password"
-        headers = {
-            "Authorization": self.access_token
-        }
-        params = {
-            "charLength": length
-        }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers, params=params) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    password = data.get('password', 'No password found.')
-                    await ctx.send(f"Generated Password: `{password}`")
-                else:
-                    await ctx.send(f"Request failed with status: {response.status}")
-
- 
-
-    @commands.command(name='quote')
-    async def quote(self, ctx):
+    async def fetch_quote(self):
+        """Fetch a random quote from the waifu.it API."""
         url = "https://waifu.it/api/v4/quote"
-        headers = {
-            "Authorization": self.access_token
-        }
+        headers = {"Authorization": self.access_token}
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 if response.status == 200:
                     data = await response.json()
                     quote_text = data.get('quote', 'No quote found.')
-
-                    # Create an embed with the fact
-                    embed = discord.Embed(
-                        title="Anume Quote",
-                        description=f"```{quote_text}```",
-                        color=discord.Color.random()
-
-                    )
-                    embed.set_footer(text=f"ID: {data['_id']}\nPowered by waifu.it", icon_url=self.bot.user.avatar)
-
-                    await ctx.reply(embed=embed, mention_author=False)
+                    return quote_text, data['_id']
                 else:
-                    await ctx.send(f"Request failed with status: {response.status}", mention_author=False)
+                    return "Request failed", None
+
+    @commands.command(name='fact')
+    async def fact(self, ctx):
+        fact_text, fact_id = await self.fetch_fact()
+
+        # Create an embed with the fact
+        embed = discord.Embed(
+            title="Random Anime Fact",
+            description=f"```{fact_text}```",
+            color=discord.Color.random()
+        )
+        embed.set_footer(text=f"ID: {fact_id}\t\tPowered by waifu.it")
+
+        # Add a button to fetch a new fact
+        button = discord.ui.Button(emoji='🔀', style=discord.ButtonStyle.primary, custom_id='random_fact')
+
+        view = discord.ui.View()
+        view.add_item(button)
+
+        await ctx.reply(embed=embed, view=view, mention_author=False)
+
+    @commands.command(name='quote')
+    async def quote(self, ctx):
+        quote_text, quote_id = await self.fetch_quote()
+
+        # Create an embed with the quote
+        embed = discord.Embed(
+            title="Anime Quote",
+            description=f"```{quote_text}```",
+            color=discord.Color.random()
+        )
+        embed.set_footer(text=f"ID: {quote_id}\nPowered by waifu.it", icon_url=self.bot.user.avatar)
+
+        # Add a button to fetch a new quote
+        button = discord.ui.Button(emoji='🔀', style=discord.ButtonStyle.primary, custom_id='random_quote')
+
+        view = discord.ui.View()
+        view.add_item(button)
+
+        await ctx.reply(embed=embed, view=view, mention_author=False)
+
+    @discord.ui.button(emoji='🔀', style=discord.ButtonStyle.primary, custom_id='random')
+    async def random_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        """Handles button click to update the embed."""
+        if button.custom_id == 'random_fact':
+            fact_text, fact_id = await self.fetch_fact()
+            embed = discord.Embed(
+                title="Random Anime Fact",
+                description=f"```{fact_text}```",
+                color=discord.Color.random()
+            )
+            embed.set_footer(text=f"ID: {fact_id}\t\tPowered by waifu.it")
+
+            # Update the message with a new fact
+            await interaction.response.edit_message(embed=embed)
+
+        elif button.custom_id == 'random_quote':
+            quote_text, quote_id = await self.fetch_quote()
+            embed = discord.Embed(
+                title="Anime Quote",
+                description=f"```{quote_text}```",
+                color=discord.Color.random()
+            )
+            embed.set_footer(text=f"ID: {quote_id}\nPowered by waifu.it", icon_url=self.bot.user.avatar)
+
+            # Update the message with a new quote
+            await interaction.response.edit_message(embed=embed)
 
     async def owoify_text(self, ctx, mode: str, text: str):
         """Helper function to interact with the waifu.it API."""
