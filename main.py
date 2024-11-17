@@ -130,4 +130,4 @@ async def start_http_server():
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.create_task(start_http_server())  # Start the HTTP server
-    loop.run_until_complete(main())  # Run the bot
+    loop.run_until_complete(main())  # Run the bot 
