@@ -7,6 +7,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 from colorama import Fore, Style
+from io import StringIO  # For in-memory log buffering
 
 from Imports.discord_imports import *  # Import Discord-specific utilities
 from Cogs.help import Help  # Ensure Help is a subclass of HelpCommand
