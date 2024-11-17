@@ -1,9 +1,9 @@
 services:
-  - type: worker  # Change from 'web' to 'worker' if it's a background process
+  - type: web
     name: discord-bot
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python main.py"  # Ensure 'main.py' is the correct script for your bot
+    startCommand: "python main.py"
     envVars:
       - key: TOKEN
         value: ${TOKEN}
@@ -14,3 +14,4 @@ services:
     pullRequestPreviews: false
     autoDeploy: true
     restartPolicy: always
+    port: 8080  # Add a port for the web service
