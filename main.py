@@ -10,6 +10,8 @@ from discord.ext import commands
 from aiohttp import web
 from aiohttp.web import WebSocketResponse
 from dotenv import load_dotenv
+import aiohttp_jinja2
+import jinja2
 
 from Imports.discord_imports import *  # Ensure this is correctly defined
 from Cogs.help import Help  # Import the Help class; ensure it's a subclass of HelpCommand
@@ -127,17 +129,26 @@ class BotSetup(commands.AutoShardedBot):
         logger.info(f"Member left: {member.name}")
         await self.send_to_websockets({"status": "Member Leave", "message": f"Member left: {member.name}"})
 
-
 # Create a simple HTTP server to bind to a port
 async def start_http_server():
     app = web.Application()
-    app.router.add_get('/', lambda request: web.Response(text="Bot is running"))
+
+    # Setup Jinja2 template engine
+    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader("templates"))
+
+    # Define your routes
+    app.router.add_get('/', index)  # This will render the index.html
     app.router.add_get('/ws', websocket_handler)  # WebSocket endpoint
+
     runner = web.AppRunner(app)
     await runner.setup()
     port = int(os.getenv("PORT", 8080))  # Adapt for Render's PORT environment variable
     site = web.TCPSite(runner, '0.0.0.0', port)
     await site.start()
+
+async def index(request):
+    """Render the index.html template"""
+    return aiohttp_jinja2.render_template('index.html', request, {})
 
 async def websocket_handler(request):
     """Handle WebSocket connections."""
@@ -168,7 +179,6 @@ async def main():
     finally:
         await bot.close()
         logger.info("Bot closed.")
-
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
