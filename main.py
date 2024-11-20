@@ -61,6 +61,7 @@ class BotSetup(commands.AutoShardedBot):
         print(Fore.BLUE + "・ ── Cogs/" + Style.RESET_ALL)
         await self.import_cogs("Cogs")
         print("\n")
+        await self.import_cogs("Events")
         print(Fore.BLUE + "===== Setup Completed =====" + Style.RESET_ALL)
 
     async def import_cogs(self, dir_name):
