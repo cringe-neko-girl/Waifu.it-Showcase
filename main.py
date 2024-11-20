@@ -8,13 +8,13 @@ import logging  # Import the logging module
 import discord
 from discord.ext import commands
 from aiohttp import web
+from aiohttp.web import WebSocketResponse
+from dotenv import load_dotenv
 
-from keep_alive import keep_alive
 from Imports.discord_imports import *  # Ensure this is correctly defined
 from Cogs.help import Help  # Import the Help class; ensure it's a subclass of HelpCommand
 
 from colorama import Fore, Style  # Import Fore and Style explicitly
-from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -31,6 +31,9 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+# Global variable to hold active websockets
+websockets = []
 
 class BotSetup(commands.AutoShardedBot):
     def __init__(self):
@@ -87,30 +90,77 @@ class BotSetup(commands.AutoShardedBot):
                         print(Fore.GREEN + f"│   │   └── {obj_name}" + Style.RESET_ALL)
                         logger.info(f"Added cog: {obj_name}")
 
-async def check_rate_limit():
-    url = "https://discord.com/api/v10/users/@me"  # Example endpoint to get the current user
-    headers = {
-        "Authorization": f"Bot {os.getenv('TOKEN')}"
-    }
+    # WebSocket event listeners for frontend updates
+    async def send_to_websockets(self, data):
+        """Send status or log data to all active websockets."""
+        for ws in websockets:
+            try:
+                await ws.send_json(data)
+            except:
+                pass  # Handle disconnections or other errors
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers) as response:
-            if response.status == 200:
-                remaining_requests = int(response.headers.get("X-RateLimit-Remaining", 1))
-                rate_limit_reset_after = float(response.headers.get("X-RateLimit-Reset-After", 0))
+    # Bot event handlers
+    async def on_ready(self):
+        logger.info(f"Bot is ready as {self.user}")
+        await self.send_to_websockets({"status": "Online", "message": f"Bot is ready as {self.user}"})
 
-                if remaining_requests <= 0:
-                    logger.warning(f"Rate limit exceeded. Retry after {rate_limit_reset_after} seconds.")
-                    print(f"Rate limit exceeded. Please wait for {rate_limit_reset_after} seconds before retrying.")
-                    await asyncio.sleep(rate_limit_reset_after)
-            else:
-                logger.error(f"Failed to check rate limit. Status code: {response.status}")
+    async def on_disconnect(self):
+        logger.info("Bot has disconnected.")
+        await self.send_to_websockets({"status": "Offline", "message": "Bot has disconnected."})
+
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+
+        logger.info(f"Message received in #{message.channel.name}: {message.content}")
+        await self.send_to_websockets({"status": "Message", "message": f"New message from {message.author.name}: {message.content}"})
+
+    async def on_error(self, event, *args, **kwargs):
+        logger.error(f"An error occurred in event {event}: {traceback.format_exc()}")
+        await self.send_to_websockets({"status": "Error", "message": f"Error in event {event}"})
+
+    async def on_member_join(self, member):
+        logger.info(f"New member joined: {member.name}")
+        await self.send_to_websockets({"status": "Member Join", "message": f"New member joined: {member.name}"})
+
+    async def on_member_remove(self, member):
+        logger.info(f"Member left: {member.name}")
+        await self.send_to_websockets({"status": "Member Leave", "message": f"Member left: {member.name}"})
+
+
+# Create a simple HTTP server to bind to a port
+async def start_http_server():
+    app = web.Application()
+    app.router.add_get('/', lambda request: web.Response(text="Bot is running"))
+    app.router.add_get('/ws', websocket_handler)  # WebSocket endpoint
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.getenv("PORT", 8080))  # Adapt for Render's PORT environment variable
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+
+async def websocket_handler(request):
+    """Handle WebSocket connections."""
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+
+    # Add WebSocket connection to list
+    websockets.append(ws)
+
+    try:
+        while True:
+            msg = await ws.receive_json()
+            # You can implement logic to handle messages from the frontend here
+            print(msg)
+    except:
+        pass  # Handle errors or disconnections
+    finally:
+        websockets.remove(ws)  # Remove WebSocket on disconnect
 
 async def main():
     bot = BotSetup()
 
     try:
-        await check_rate_limit()  # Check rate limits before starting the bot
         await bot.start_bot()
     except Exception as e:
         traceback_string = traceback.format_exc()
@@ -119,15 +169,6 @@ async def main():
         await bot.close()
         logger.info("Bot closed.")
 
-# Create a simple HTTP server to bind to a port
-async def start_http_server():
-    app = web.Application()
-    app.router.add_get('/', lambda request: web.Response(text="Bot is running"))
-    runner = web.AppRunner(app)
-    await runner.setup()
-    port = int(os.getenv("PORT", 8080))  # Adapt for Render's PORT environment variable
-    site = web.TCPSite(runner, '0.0.0.0', port)
-    await site.start()
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
