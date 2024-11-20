@@ -76,32 +76,33 @@ class Texts(commands.Cog):
 
         await ctx.reply(embed=embed, view=view, mention_author=False)
 
-    @discord.ui.button(emoji='🔀', style=discord.ButtonStyle.primary, custom_id='random')
-    async def random_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        """Handles button click to update the embed."""
-        if button.custom_id == 'random_fact':
-            fact_text, fact_id = await self.fetch_fact()
-            embed = discord.Embed(
-                title="Random Anime Fact",
-                description=f"```{fact_text}```",
-                color=discord.Color.random()
-            )
-            embed.set_footer(text=f"ID: {fact_id}\t\tPowered by waifu.it")
+    @discord.ui.button(emoji='🔀', style=discord.ButtonStyle.primary, custom_id='random_fact')
+    async def random_fact_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        """Handles button click to update the fact embed."""
+        fact_text, fact_id = await self.fetch_fact()
+        embed = discord.Embed(
+            title="Random Anime Fact",
+            description=f"```{fact_text}```",
+            color=discord.Color.random()
+        )
+        embed.set_footer(text=f"ID: {fact_id}\t\tPowered by waifu.it")
 
-            # Update the message with a new fact
-            await button.response.edit_message(embed=embed)
+        # Update the message with a new fact
+        await interaction.response.edit_message(embed=embed)
 
-        elif button.custom_id == 'random_quote':
-            quote_text, quote_id = await self.fetch_quote()
-            embed = discord.Embed(
-                title="Anime Quote",
-                description=f"```{quote_text}```",
-                color=discord.Color.random()
-            )
-            embed.set_footer(text=f"ID: {quote_id}\nPowered by waifu.it", icon_url=self.bot.user.avatar)
+    @discord.ui.button(emoji='🔀', style=discord.ButtonStyle.primary, custom_id='random_quote')
+    async def random_quote_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        """Handles button click to update the quote embed."""
+        quote_text, quote_id = await self.fetch_quote()
+        embed = discord.Embed(
+            title="Anime Quote",
+            description=f"```{quote_text}```",
+            color=discord.Color.random()
+        )
+        embed.set_footer(text=f"ID: {quote_id}\nPowered by waifu.it", icon_url=self.bot.user.avatar)
 
-            # Update the message with a new quote
-            await button.response.edit_message(embed=embed)
+        # Update the message with a new quote
+        await interaction.response.edit_message(embed=embed)
 
     async def owoify_text(self, ctx, mode: str, text: str):
         """Helper function to interact with the waifu.it API."""
