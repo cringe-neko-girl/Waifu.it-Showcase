@@ -3,148 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Bot Status</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f1f1f1;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            overflow: hidden;
+            background-color: #f3f4f6;
+            margin: 0;
+            color: #333;
         }
-        .container {
-            background-color: #ffffff;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 40px 50px;
-            width: 90%;
-            max-width: 600px;
+
+        .status-container {
             text-align: center;
-            position: relative;
-        }
-        .header {
-            color: #2c3e50;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-        .status-text {
-            font-size: 1.3em;
-            color: #7f8c8d;
-            margin-bottom: 30px;
-        }
-        .status {
-            display: inline-block;
-            font-size: 1.2em;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            background-color: #2ecc71;  /* Green by default for online */
-            transition: background-color 0.3s;
-        }
-        .status.offline {
-            background-color: #e74c3c;  /* Red for offline */
-        }
-        .status.ping {
-            background-color: #f39c12;  /* Yellow for pinging */
-            animation: pulse 1.5s infinite;  /* Pulsing animation */
-        }
-        .scrolling-text {
-            font-size: 1.5em;
-            color: #34495e;
-            background-color: #ecf0f1;
-            padding: 12px;
+            width: 400px;
+            background-color: #ffffff;
             border-radius: 20px;
-            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            white-space: nowrap;
-            width: 100%;
-            animation: scroll-text 15s linear infinite;
+            padding: 20px;
         }
-        @keyframes scroll-text {
-            0% {
-                transform: translateX(100%);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
+
+        #status-box {
+            margin-bottom: 20px;
+            padding: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.05);
-                opacity: 0.8;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
+
+        .online {
+            background-color: #28a745;
+            box-shadow: 0 4px 10px rgba(0, 255, 0, 0.3);
+            border: 2px solid #1e7e34;
         }
-        .footer {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.9em;
-            color: #7f8c8d;
+
+        .offline {
+            background-color: #dc3545;
+            box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+            border: 2px solid #c82333;
+        }
+
+        .pinging {
+            background-color: #ffc107;
+            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
+            border: 2px solid #e0a800;
+        }
+
+        .status-text {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            font-weight: normal;
+        }
+
+        #channel-log {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        .channel-log-item {
+            margin-bottom: 10px;
+            word-wrap: break-word;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">Bot Status</div>
-        <div class="status-text">Current bot status:</div>
-        <div id="status" class="status">Online</div>
-        <div id="scrolling-text" class="scrolling-text">This is a live bot status page. Keep it alive with uptime services like Render or Repl.it!</div>
-        <div class="footer">Powered by Your Bot</div>
+<div class="status-container">
+    <div id="status-box" class="online">
+        <div id="status-text">Bot is Online</div>
     </div>
 
-    <script>
-        // Simulate dynamic status change based on bot activity (pinged or offline)
-        let statusElement = document.getElementById('status');
-        let scrollingTextElement = document.getElementById('scrolling-text');
+    <div id="channel-log"></div>
+</div>
 
-        function setStatusOnline() {
-            statusElement.textContent = "Online";
-            statusElement.classList.remove('offline', 'ping');
-            statusElement.classList.add('online');
+<script>
+    // Connect to the server using Socket.IO
+    const socket = io();
+
+    // Listen for status changes from the server
+    socket.on('status', (data) => {
+        const statusBox = document.getElementById("status-box");
+        const statusText = document.getElementById("status-text");
+
+        // Update the status based on the received data
+        if (data.status === 'Online') {
+            statusBox.classList.remove("offline", "pinging");
+            statusBox.classList.add("online");
+            statusText.innerHTML = "Bot is Online";
+        } else if (data.status === 'Offline') {
+            statusBox.classList.remove("online", "pinging");
+            statusBox.classList.add("offline");
+            statusText.innerHTML = "Bot is Offline";
+        } else if (data.status === 'Pinging...') {
+            statusBox.classList.remove("online", "offline");
+            statusBox.classList.add("pinging");
+            statusText.innerHTML = "Bot is Pinging...";
         }
+    });
 
-        function setStatusOffline() {
-            statusElement.textContent = "Offline";
-            statusElement.classList.remove('ping', 'online');
-            statusElement.classList.add('offline');
-        }
+    // Listen for channel log updates
+    socket.on('channel_log', (logData) => {
+        const channelLog = document.getElementById("channel-log");
+        const logItem = document.createElement("div");
+        logItem.classList.add("channel-log-item");
+        logItem.textContent = logData.message;
+        channelLog.appendChild(logItem);
 
-        function setStatusPinging() {
-            statusElement.textContent = "Pinging...";
-            statusElement.classList.remove('offline', 'online');
-            statusElement.classList.add('ping');
-            scrollingTextElement.textContent = "Bot is being pinged. Please wait...";
-        }
-
-        function resetScrollingText() {
-            scrollingTextElement.textContent = "This is a live bot status page. Keep it alive with uptime services like Render or Repl.it!";
-        }
-
-        // Simulate status changes for demo (you can replace this with actual API calls)
-        setTimeout(setStatusPinging, 2000); // After 2 seconds, simulate ping
-        setTimeout(setStatusOnline, 8000);  // After 8 seconds, simulate online status
-        setTimeout(setStatusOffline, 15000); // After 15 seconds, simulate offline status
-    </script>
+        // Scroll to the bottom of the log
+        channelLog.scrollTop = channelLog.scrollHeight;
+    });
+</script>
 
 </body>
 </html>
