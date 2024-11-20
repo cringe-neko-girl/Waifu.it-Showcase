@@ -1,24 +1,62 @@
 import os
-from flask import Flask, render_template
-import threading
-import time
+from aiohttp import web
+import socketio
 
-app = Flask(__name__)
+# Create an instance of Socket.IO server
+sio = socketio.AsyncServer()
+app = web.Application()
+sio.attach(app)
 
-@app.route('/')
-def home():
-    return render_template('index.html')  # This serves the HTML page
+# Serve the HTML page at the root route
+async def index(request):
+    with open("templates/index.html", "r") as file:
+        return web.Response(text=file.read(), content_type="text/html")
 
-@app.route('/ping')
-def ping():
-    return 'Pong!'
+# Define the WebSocket event to send status updates
+@sio.event
+async def connect(sid, environ):
+    print(f"Client {sid} connected")
+    await sio.emit('status', {'status': 'Online'}, to=sid)  # Send initial status
 
-def run():
-    app.run(host='0.0.0.0', port=8080)  # Host on port 8080 for Render
+@sio.event
+async def disconnect(sid):
+    print(f"Client {sid} disconnected")
 
-def keep_alive():
-    t = threading.Thread(target=run)
-    t.start()
+# Function to update status
+async def update_status(status):
+    # Emit the new status to all connected clients
+    await sio.emit('status', {'status': status})
 
-if __name__ == '__main__':
-    keep_alive()
+# Run the keep-alive server
+async def keep_alive():
+    # Serving HTML and static files (you can add more routes if needed)
+    app.router.add_get('/', index)
+
+    # Start the server on a specific port
+    port = int(os.getenv("PORT", 8080))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+    print(f"Server started on port {port}")
+
+# Function to simulate status changes (e.g., Online, Offline, Pinging)
+async def simulate_status_changes():
+    # Simulate some status changes
+    await update_status('Pinging...')
+    await asyncio.sleep(2)  # Wait for 2 seconds
+    await update_status('Online')
+    await asyncio.sleep(10)  # Wait for 10 seconds
+    await update_status('Offline')
+
+if __name__ == "__main__":
+    import asyncio
+    loop = asyncio.get_event_loop()
+
+    # Start the keep-alive server
+    loop.create_task(keep_alive())
+
+    # Simulate status changes
+    loop.create_task(simulate_status_changes())
+
+    loop.run_forever()
