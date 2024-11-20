@@ -5,6 +5,7 @@ import jinja2
 from aiohttp import web
 import socketio
 import asyncio
+import socket
 
 class WebEventCog(commands.Cog):
     def __init__(self, bot):
@@ -55,10 +56,27 @@ class WebEventCog(commands.Cog):
         """Start the HTTP server that serves the templates."""
         runner = web.AppRunner(self.app)
         await runner.setup()
-        port = 8080  # Or get it from environment variables
+        
+        # Try to bind to an open port starting from 8080
+        port = await self.find_open_port()
+        
         site = web.TCPSite(runner, '0.0.0.0', port)
         await site.start()
         print(f"HTTP server running on port {port}")
+
+    async def find_open_port(self, start_port=8080):
+        """Find an open port starting from `start_port`."""
+        port = start_port
+        while True:
+            try:
+                # Try to bind the socket to the port
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.bind(('0.0.0.0', port))
+                    s.close()  # Port is free, return the port number
+                return port
+            except OSError:
+                # Port is already in use, try the next one
+                port += 1
 
     async def index(self, request):
         """Render the index.html template."""
