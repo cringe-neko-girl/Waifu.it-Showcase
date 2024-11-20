@@ -53,7 +53,7 @@ class WebEventCog(commands.Cog):
         
         return ws
 
-    @commands.command(hidden=True)
+    @commands.command(name='start', hidden=True)
     async def start_http(self, ctx):
         """Start the HTTP server from a command."""
         await self.start_http_server()
