@@ -149,6 +149,7 @@ async def main():
     try:
         await check_rate_limit()  # Check rate limits before starting the bot
         await bot.start_bot()
+        await bot.start_http_server()  # Start the HTTP server on the bot instance
     except Exception as e:
         traceback_string = traceback.format_exc()
         logger.error(f"An error occurred: {e}\n{traceback_string}")
@@ -159,5 +160,4 @@ async def main():
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.create_task(start_http_server())  # Start the HTTP server
-    loop.run_until_complete(main())  # Run the bot
+    loop.run_until_complete(main())  # Run the bot and HTTP server together
