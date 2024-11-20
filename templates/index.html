@@ -3,135 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bot Status</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <title>Bot Dashboard</title>
+    <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"></script>
     <style>
-        * {
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            background-color: #f7f7f7;
         }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f3f4f6;
-            margin: 0;
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
             color: #333;
         }
-
-        .status-container {
-            text-align: center;
-            width: 400px;
-            background-color: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            padding: 20px;
-        }
-
-        #status-box {
+        .status-box {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 20px;
             padding: 20px;
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #fff;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .online {
-            background-color: #28a745;
-            box-shadow: 0 4px 10px rgba(0, 255, 0, 0.3);
-            border: 2px solid #1e7e34;
-        }
-
-        .offline {
-            background-color: #dc3545;
-            box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
-            border: 2px solid #c82333;
-        }
-
-        .pinging {
-            background-color: #ffc107;
-            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
-            border: 2px solid #e0a800;
-        }
-
-        .status-text {
-            margin-top: 10px;
+            border-radius: 8px;
             font-size: 1.2rem;
-            font-weight: normal;
         }
-
-        #channel-log {
-            max-height: 200px;
-            overflow-y: auto;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            color: #555;
+        .online { background-color: #28a745; color: white; }
+        .offline { background-color: #dc3545; color: white; }
+        .pinging { background-color: #ffc107; color: white; }
+        .logs {
+            max-height: 400px;
+            overflow-y: scroll;
+            border-top: 2px solid #ddd;
             margin-top: 20px;
+            padding-top: 10px;
         }
-
-        .channel-log-item {
-            margin-bottom: 10px;
-            word-wrap: break-word;
+        .log-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Discord Bot Dashboard</h1>
+        
+        <div id="status-box" class="status-box online">
+            <div id="status">Bot is Online</div>
+            <div id="activity">Activity: </div>
+        </div>
 
-<div class="status-container">
-    <div id="status-box" class="online">
-        <div id="status-text">Bot is Online</div>
+        <div class="logs" id="logs">
+            <!-- Logs will be displayed here -->
+        </div>
     </div>
 
-    <div id="channel-log"></div>
-</div>
+    <script>
+        const socket = io.connect('http://localhost:8080');
+        
+        // Listen for bot status updates
+        socket.on('status', (data) => {
+            const statusBox = document.getElementById("status-box");
+            const statusText = document.getElementById("status");
+            const activityText = document.getElementById("activity");
 
-<script>
-    // Connect to the server using Socket.IO
-    const socket = io();
+            if (data.status === 'Online') {
+                statusBox.classList.remove("offline", "pinging");
+                statusBox.classList.add("online");
+                statusText.innerText = "Bot is Online";
+            } else if (data.status === 'Offline') {
+                statusBox.classList.remove("online", "pinging");
+                statusBox.classList.add("offline");
+                statusText.innerText = "Bot is Offline";
+            } else if (data.status === 'Pinging') {
+                statusBox.classList.remove("online", "offline");
+                statusBox.classList.add("pinging");
+                statusText.innerText = "Bot is Pinging...";
+            }
+            activityText.innerText = `Activity: ${data.activity || "None"}`;
+        });
 
-    // Listen for status changes from the server
-    socket.on('status', (data) => {
-        const statusBox = document.getElementById("status-box");
-        const statusText = document.getElementById("status-text");
+        // Listen for new messages
+        socket.on('new_message', (data) => {
+            const logs = document.getElementById("logs");
+            const newLog = document.createElement('div');
+            newLog.classList.add("log-item");
+            newLog.innerText = `${data.author}: ${data.content}`;
+            logs.appendChild(newLog);
+        });
 
-        // Update the status based on the received data
-        if (data.status === 'Online') {
-            statusBox.classList.remove("offline", "pinging");
-            statusBox.classList.add("online");
-            statusText.innerHTML = "Bot is Online";
-        } else if (data.status === 'Offline') {
-            statusBox.classList.remove("online", "pinging");
-            statusBox.classList.add("offline");
-            statusText.innerHTML = "Bot is Offline";
-        } else if (data.status === 'Pinging...') {
-            statusBox.classList.remove("online", "offline");
-            statusBox.classList.add("pinging");
-            statusText.innerHTML = "Bot is Pinging...";
-        }
-    });
-
-    // Listen for channel log updates
-    socket.on('channel_log', (logData) => {
-        const channelLog = document.getElementById("channel-log");
-        const logItem = document.createElement("div");
-        logItem.classList.add("channel-log-item");
-        logItem.textContent = logData.message;
-        channelLog.appendChild(logItem);
-
-        // Scroll to the bottom of the log
-        channelLog.scrollTop = channelLog.scrollHeight;
-    });
-</script>
-
+        // Listen for member join event
+        socket.on('member_join', (data) => {
+            const logs = document.getElementById("logs");
+            const newLog = document.createElement('div');
+            newLog.classList.add("log-item");
+            newLog.innerText = `${data.username} has joined the server.`;
+            logs.appendChild(newLog);
+        });
+    </script>
 </body>
 </html>
