@@ -3,8 +3,8 @@ import sys
 import subprocess
 import traceback
 import asyncio
-import aiohttp  # Import aiohttp for asynchronous HTTP requests
-import logging  # Import the logging module
+import aiohttp
+import logging
 import discord
 from discord.ext import commands
 from aiohttp import web
@@ -15,8 +15,7 @@ import jinja2
 
 from Imports.discord_imports import *  # Ensure this is correctly defined
 from Cogs.help import Help  # Import the Help class; ensure it's a subclass of HelpCommand
-
-from colorama import Fore, Style  # Import Fore and Style explicitly
+from colorama import Fore, Style
 
 # Load environment variables from .env file
 load_dotenv()
@@ -25,11 +24,11 @@ os.system("pip install --upgrade pip")
 
 # Configure logging
 logging.basicConfig(
-    level=logging.DEBUG,  # Set the logging level to DEBUG
-    format='%(asctime)s - %(levelname)s - %(message)s',  # Define the log message format
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("bot.log"),  # Log to a file
-        logging.StreamHandler()  # Log to console
+        logging.FileHandler("bot.log"),
+        logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
@@ -40,57 +39,58 @@ websockets = []
 class BotSetup(commands.AutoShardedBot):
     def __init__(self):
         intents = discord.Intents.all()
-        super().__init__(command_prefix=commands.when_mentioned_or(">"), intents=intents, shard_count=3, help_command=None)  # Set help_command to None initially
-        self.mongoConnect = None  # Initialize the MongoDB connection attribute
+        super().__init__(command_prefix=commands.when_mentioned_or(">"), intents=intents, shard_count=3, help_command=None)
+        self.mongoConnect = None  # MongoDB connection (if needed)
 
     async def start_bot(self):
+        # Ensure the bot is set up correctly
+        logger.info("Starting bot setup process...")
         await self.setup()
         token = os.getenv('TOKEN')
-
+        
         if not token:
             logger.error("No token found. Please set the TOKEN environment variable.")
             return
-
+        
         try:
+            logger.info("Starting bot...")
             await self.start(token)
             logger.info("Bot started successfully.")
+        except discord.LoginFailure:
+            logger.error("Invalid token or unable to log in.")
         except KeyboardInterrupt:
             logger.info("Bot was stopped by the user.")
             await self.close()
         except Exception as e:
-            traceback_string = traceback.format_exc()
-            logger.error(f"An error occurred while logging in: {e}\n{traceback_string}")
+            logger.error(f"An error occurred: {e}\n{traceback.format_exc()}")
             await self.close()
 
     async def setup(self):
-        print("\n")
-        print(Fore.BLUE + "・ ── Cogs/" + Style.RESET_ALL)
+        # Setup the bot including cogs
+        logger.info("Starting bot setup...")
         await self.import_cogs("Cogs")
-        print("\n")
-        print(Fore.BLUE + "===== Setup Completed =====" + Style.RESET_ALL)
+        logger.info("Bot setup completed.")
 
     async def import_cogs(self, dir_name):
+        # Attempt to load cogs dynamically from a specified directory
         files_dir = os.listdir(dir_name)
         for filename in files_dir:
             if filename.endswith(".py"):
-                print(Fore.BLUE + f"│   ├── {filename}" + Style.RESET_ALL)
-                logger.info(f"Importing cog: {filename}")
+                try:
+                    # Log the cog being imported
+                    logger.info(f"Attempting to import cog: {filename}")
+                    cog_name = os.path.splitext(filename)[0]
+                    await self.load_cog(cog_name, dir_name)
+                except Exception as e:
+                    logger.error(f"Failed to load cog {filename}: {e}")
 
-                module = __import__(f"{dir_name}.{os.path.splitext(filename)[0]}", fromlist=[""])
-                for obj_name in dir(module):
-                    obj = getattr(module, obj_name)
-                    if isinstance(obj, commands.CogMeta):
-                        # Check if the cog already exists before adding it
-                        existing_cog = self.get_cog(obj_name)
-                        if existing_cog:
-                            await self.remove_cog(obj_name)  # Remove the existing cog
-                            print(Fore.RED + f"│   │   Removed {obj_name} cog" + Style.RESET_ALL)
-                            logger.info(f"Removed {obj_name} cog.")
-                        
-                        # Add the new cog
-                        await self.add_cog(obj(self))
-                        print(Fore.GREEN + f"│   │   └── {obj_name}" + Style.RESET_ALL)
-                        logger.info(f"Added cog: {obj_name}")
+    async def load_cog(self, cog_name, dir_name):
+        try:
+            # Load the cog
+            await self.load_extension(f"{dir_name}.{cog_name}")
+            logger.info(f"Cog {cog_name} loaded successfully.")
+        except Exception as e:
+            logger.error(f"Error loading cog {cog_name}: {e}")
 
     # WebSocket event listeners for frontend updates
     async def send_to_websockets(self, data):
@@ -129,7 +129,7 @@ class BotSetup(commands.AutoShardedBot):
         logger.info(f"Member left: {member.name}")
         await self.send_to_websockets({"status": "Member Leave", "message": f"Member left: {member.name}"})
 
-# Create a simple HTTP server to bind to a port
+# Web server to serve the frontend
 async def start_http_server():
     app = web.Application()
 
@@ -137,7 +137,7 @@ async def start_http_server():
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader("templates"))
 
     # Define your routes
-    app.router.add_get('/', index)  # This will render the index.html
+    app.router.add_get('/', index)  # Render index.html
     app.router.add_get('/ws', websocket_handler)  # WebSocket endpoint
 
     runner = web.AppRunner(app)
@@ -161,21 +161,21 @@ async def websocket_handler(request):
     try:
         while True:
             msg = await ws.receive_json()
-            # You can implement logic to handle messages from the frontend here
-            print(msg)
+            print(msg)  # Handle any messages sent from frontend
     except:
         pass  # Handle errors or disconnections
     finally:
         websockets.remove(ws)  # Remove WebSocket on disconnect
 
+# Main entry to run the bot and web server
 async def main():
     bot = BotSetup()
 
     try:
+        logger.info("Starting bot and web server...")
         await bot.start_bot()
     except Exception as e:
-        traceback_string = traceback.format_exc()
-        logger.error(f"An error occurred: {e}\n{traceback_string}")
+        logger.error(f"An error occurred: {e}\n{traceback.format_exc()}")
     finally:
         await bot.close()
         logger.info("Bot closed.")
