@@ -198,7 +198,6 @@ class View(discord.ui.View):
             
             
                     
-
 class Images(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -212,6 +211,60 @@ class Images(commands.Cog):
 
         logging.debug("Images Cog initialized with API URL: %s", self.api_url_husbando)
         
+    async def create_embed(self, data, is_waifu=True):
+        # Extract necessary information from the data
+        anime_names = data.get('name', {})
+        anime_images = [data.get('image', {}).get('large')]
+        anime_description = data.get('description', "No description available.")
+        media_node = data.get('media', {}).get('nodes', [{}])[0]
+        anime_type = media_node.get('type', 'Unknown')
+        anime_format = media_node.get('format', 'Unknown')
+        banner_image_url = media_node.get('bannerImage')
+
+        anime_source_name = f"{anime_type} - {anime_format}"
+
+        embeds = []
+        # Create the initial embed
+        if banner_image_url:
+            embed_image = discord.Embed(
+                title=f'{anime_names.get("userPreferred", "Unknown")}', 
+                description=anime_description, 
+                url="https://rajtech.me"
+            )
+            embed_image.set_image(url=banner_image_url)
+            embeds.append(embed_image)  # Append image embed
+
+            embed_image_2 = discord.Embed(
+                title=f'{anime_names.get("userPreferred", "Unknown")}', 
+                description=anime_description, 
+                url="https://rajtech.me"
+            )
+            embed_image_2.set_thumbnail(url=anime_images[0])
+            embeds.append(embed_image_2)  # Append image embed
+        else:
+            embed_image = discord.Embed(
+                title=f'{anime_names.get("userPreferred", "Unknown")}', 
+                description=anime_description, 
+                url="https://rajtech.me"
+            )
+            embed_image.set_image(url=anime_images[0])
+            embeds.append(embed_image)  # Append image embed
+
+        # Set the footer text based on type and format
+        preferred_languages = ['romaji', 'native', 'english']
+        title = next(
+            (media_node.get('title', {}).get(lang) 
+            for lang in preferred_languages if media_node.get('title', {}).get(lang)), 
+            'N/A'
+        )
+        footer_text = (
+            f"Type: {media_node.get('type').lower().title()}\n"
+            f"Source: {title.lower().title()}"
+        )
+        embeds[-1].set_footer(text=footer_text)
+
+        return embeds
+    
     @commands.command(name='waifu', help='Fetch a random waifu image from the Waifu.it API.')
     async def waifu(self, ctx, num_images=10):
         async with aiohttp.ClientSession() as session:
@@ -222,83 +275,28 @@ class Images(commands.Cog):
 
                 data = await response.json()
 
-        # Extract necessary information from the data
-        anime_names = data.get('name', {})
-        anime_images = [data.get('image', {}).get('large')]
-        anime_description = data.get('description', "No description available.")
-        media_node = data.get('media', {}).get('nodes', [{}])[0]
-        anime_type = media_node.get('type', 'Unknown')
-        anime_format = media_node.get('format', 'Unknown')
-        banner_image_url = media_node.get('bannerImage')
+        embeds = await self.create_embed(data, is_waifu=True)
 
-        anime_source_name = f"{anime_type} - {anime_format}"  # Adjust source name based on type and format
-
-        # Create the initial embed
-        embed = discord.Embed(title=f'{anime_names.get("userPreferred", "Unknown")}', description=anime_description)
-        if banner_image_url:
-            embed.set_image(url=banner_image_url)
-            embed.set_thumbnail(url=anime_images[0])
-        else:
-            embed.set_image(url=anime_images[0])
-
-
-
-
-        # Set the footer text based on type and format
-        preferred_languages = ['romaji', 'native', 'english']  # Define your preferred languages here
-        title = next((media_node.get('title', {}).get(lang) for lang in preferred_languages if media_node.get('title', {}).get(lang)), 'N/A')
-        footer_text = (
-            f"Type: {media_node.get('type').lower().title()}\n"
-            f"Source: {title.lower().title()}"
-        )
-        embed.set_footer(text=footer_text)
-
-        # Send the initial embed with buttons
+        # Send the embed with buttons
         view = View(ctx, data, self.api_url_waifu)
-        await ctx.reply(embed=embed, view=view, mention_author=False)
+        await ctx.reply(embeds=embeds, view=view, mention_author=False)
 
     @commands.command(name='husbando', help='Fetch a random husbando image from the Waifu.it API.')
     async def husbando(self, ctx, num_images=10):
         async with aiohttp.ClientSession() as session:
             async with session.get(self.api_url_husbando, headers={"Authorization": self.access_token}) as response:
                 if response.status != 200:
-                    await ctx.send(f"Failed to fetch waifu data. Status code: {response.status}")
+                    await ctx.send(f"Failed to fetch husbando data. Status code: {response.status}")
                     return
 
                 data = await response.json()
 
-        # Extract necessary information from the data
-        anime_names = data.get('name', {})
-        anime_images = [data.get('image', {}).get('large')]
-        anime_description = data.get('description', "No description available.")
-        media_node = data.get('media', {}).get('nodes', [{}])[0]
-        anime_type = media_node.get('type', 'Unknown')
-        anime_format = media_node.get('format', 'Unknown')
-        banner_image_url = media_node.get('bannerImage')
+        embeds = await self.create_embed(data, is_waifu=False)
 
-        anime_source_name = f"{anime_type} - {anime_format}"  # Adjust source name based on type and format
-
-        # Create the initial embed
-        embed = discord.Embed(title=f'{anime_names.get("userPreferred", "Unknown")}', description=anime_description)
-        if banner_image_url:
-           embed.set_image(url=banner_image_url)
-           embed.set_thumbnail(url=anime_images[0])
-        else:
-           embed.set_image(url=anime_images[0])
-
-
-        # Set the footer text based on type and format
-        preferred_languages = ['romaji', 'native', 'english']  # Define your preferred languages here
-        title = next((media_node.get('title', {}).get(lang) for lang in preferred_languages if media_node.get('title', {}).get(lang)), 'N/A')
-        footer_text = (
-            f"Type: {media_node.get('type').lower().title()}\n"
-            f"Source: {title.lower().title()}"
-        )
-        embed.set_footer(text=footer_text)
-
-        # Send the initial embed with buttons
+        # Send the embed with buttons
         view = View(ctx, data, self.api_url_husbando)
-        await ctx.reply(embed=embed, view=view, mention_author=False)
+        await ctx.reply(embeds=embeds, view=view, mention_author=False)
+
 
 def setup(bot):
     bot.add_cog(Images(bot))

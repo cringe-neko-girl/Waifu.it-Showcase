@@ -3,19 +3,16 @@ import sys
 import subprocess
 import traceback
 import asyncio
-import aiohttp  # Import aiohttp for asynchronous HTTP requests
-import logging  # Import the logging module
-import discord
-from discord.ext import commands
+import logging
+import aiohttp
 from aiohttp import web
 
-from Imports.discord_imports import *  # Ensure this is correctly defined
-from Cogs.help import Help  # Import the Help class; ensure it's a subclass of HelpCommand
-
-from colorama import Fore, Style  # Import Fore and Style explicitly
 from dotenv import load_dotenv
+from colorama import Fore, Style
 
-# Load environment variables from .env file
+from Imports.discord_imports import *
+from Cogs.help import Help
+
 load_dotenv()
 
 os.system("pip install --upgrade pip")
