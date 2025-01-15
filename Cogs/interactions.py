@@ -381,6 +381,13 @@ class Interactions(commands.Cog):
                     user = ctx.author
                 if not target:
                     target = "themselves"
+
+                if user and target:
+                    user = ctx.author
+                    target = target
+
+
+                    
                 
                 embed = await ResponseTemplate().create_embed(expression, user, target)
                 image_url = embed.image.url if embed.image else None
