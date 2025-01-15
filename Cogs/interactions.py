@@ -127,6 +127,7 @@ class ResponseTemplate:
         # Get the response text for the expression
         response = self.responses.get(expression, "No response found for this expression.")
         
+        print(target)
         # Set the content based on whether the target is 'themselves'
         if target != "themselves":
             content = response.format(user=user.name, target=target.name if target else "someone")
@@ -375,16 +376,10 @@ class Interactions(commands.Cog):
         for expression in expressions:
             # Define a command for each expression
             @commands.command(name=expression)
-            async def command(ctx, user: discord.User = None, target: discord.User = None, expression=expression):
-                """Send an embed with the corresponding expression."""
-                if not user:
-                    user = ctx.author
+            async def command(ctx, target: discord.User = None, expression=expression):
+                user = ctx.author
                 if not target:
                     target = "themselves"
-
-                if user and target:
-                    user = ctx.author
-                    target = target
 
 
                     
@@ -400,7 +395,8 @@ class Interactions(commands.Cog):
             command.__name__ = expression  # Ensure the function name is set
             self.bot.add_command(command)
 
-class More_Info(View):
+class More_Info(View):               
+
     def __init__(self, expression, user, image_url):
         super().__init__(timeout=None)
         self.expression = expression

@@ -23,7 +23,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',  # Define the log message format
     handlers=[
         logging.FileHandler("bot.log"),  # Log to a file
-        logging.StreamHandler()  # Log to console
     ]
 )
 logger = logging.getLogger(__name__)
@@ -31,7 +30,7 @@ logger = logging.getLogger(__name__)
 class BotSetup(commands.AutoShardedBot):
     def __init__(self):
         intents = discord.Intents.all()
-        super().__init__(command_prefix=commands.when_mentioned_or(">"), intents=intents, shard_count=3, help_command=None)  # Set help_command to None initially
+        super().__init__(command_prefix=commands.when_mentioned_or("."), intents=intents, shard_count=3, help_command=None)  # Set help_command to None initially
         self.mongoConnect = None  # Initialize the MongoDB connection attribute
 
     async def start_bot(self):
