@@ -516,3 +516,43 @@ discord.ext.commands.errors.CommandNotFound: Command "shrug" is not found
 2025-01-14 08:43:17,163 - DEBUG - For Shard ID 0: WebSocket Event: {'t': 'PRESENCE_UPDATE', 's': 8, 'op': 0, 'd': {'user': {'id': '678344927997853742'}, 'status': 'online', 'guild_id': '1290474901563641916', 'client_status': {'web': 'online'}, 'activities': [{'type': 4, 'state': '🔗 sapph.xyz', 'name': 'sapph.xyz', 'id': 'ec0b28a579ecb4bd', 'created_at': 1736844180583}]}}
 2025-01-14 08:43:17,163 - DEBUG - Dispatching event socket_event_type
 2025-01-14 08:43:17,163 - DEBUG - Dispatching event presence_update
+2025-01-15 05:59:59,630 - DEBUG - Using selector: EpollSelector
+2025-01-15 05:59:59,632 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-01-15 05:59:59,732 - ERROR - Failed to check rate limit. Status code: 401
+2025-01-15 05:59:59,733 - INFO - Importing cog: images.py
+2025-01-15 05:59:59,747 - DEBUG - Images Cog initialized with API URL: https://waifu.it/api/v4/husbando
+2025-01-15 05:59:59,747 - INFO - Added cog: Images
+2025-01-15 05:59:59,747 - INFO - Importing cog: text.py
+2025-01-15 05:59:59,756 - INFO - Added cog: Texts
+2025-01-15 05:59:59,756 - INFO - Importing cog: help.py
+2025-01-15 05:59:59,757 - INFO - Added cog: Help
+2025-01-15 05:59:59,758 - INFO - Importing cog: interactions.py
+2025-01-15 05:59:59,780 - INFO - Added cog: Interactions
+2025-01-15 05:59:59,781 - INFO - Importing cog: website.py
+2025-01-15 06:00:00,191 - INFO - Added cog: WebEventCog
+2025-01-15 06:00:00,191 - INFO - logging in using static token
+2025-01-15 06:00:00,275 - DEBUG - GET https://discord.com/api/v10/users/@me with None has returned 401
+2025-01-15 06:00:00,279 - ERROR - An error occurred while logging in: Improper token has been passed.
+Traceback (most recent call last):
+  File "/home/codespace/.local/lib/python3.12/site-packages/discord/http.py", line 816, in static_login
+    data = await self.request(Route('GET', '/users/@me'))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/codespace/.local/lib/python3.12/site-packages/discord/http.py", line 758, in request
+    raise HTTPException(response, data)
+discord.errors.HTTPException: 401 Unauthorized (error code: 0): 401: Unauthorized
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspaces/Waifu.it-Showcase/main.py", line 46, in start_bot
+    await self.start(token)
+  File "/home/codespace/.local/lib/python3.12/site-packages/discord/client.py", line 786, in start
+    await self.login(token)
+  File "/home/codespace/.local/lib/python3.12/site-packages/discord/client.py", line 620, in login
+    data = await self.http.static_login(token)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/codespace/.local/lib/python3.12/site-packages/discord/http.py", line 820, in static_login
+    raise LoginFailure('Improper token has been passed.') from exc
+discord.errors.LoginFailure: Improper token has been passed.
+
+2025-01-15 06:00:00,281 - INFO - Bot closed.
