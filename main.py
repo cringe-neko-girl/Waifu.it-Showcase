@@ -19,10 +19,10 @@ os.system("pip install --upgrade pip")
 
 # Configure logging
 logging.basicConfig(
-    level=logging.DEBUG,  # Set the logging level to DEBUG
-    format='%(asctime)s - %(levelname)s - %(message)s',  # Define the log message format
+    level=logging.DEBUG,  
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("bot.log"),  # Log to a file
+        logging.FileHandler("bot.log"),  
     ]
 )
 logger = logging.getLogger(__name__)
@@ -30,8 +30,8 @@ logger = logging.getLogger(__name__)
 class BotSetup(commands.AutoShardedBot):
     def __init__(self):
         intents = discord.Intents.all()
-        super().__init__(command_prefix=commands.when_mentioned_or(">"), intents=intents, shard_count=3, help_command=None)  # Set help_command to None initially
-        self.mongoConnect = None  # Initialize the MongoDB connection attribute
+        super().__init__(command_prefix=commands.when_mentioned_or(">"), intents=intents, shard_count=3, help_command=None) 
+        self.mongoConnect = None  
 
     async def start_bot(self):
         await self.setup()
@@ -71,7 +71,6 @@ class BotSetup(commands.AutoShardedBot):
                 for obj_name in dir(module):
                     obj = getattr(module, obj_name)
                     if isinstance(obj, commands.CogMeta):
-                        # Check if the cog already exists before adding it
                         existing_cog = self.get_cog(obj_name)
                         if existing_cog:
                             await self.remove_cog(obj_name)  # Remove the existing cog
@@ -84,7 +83,7 @@ class BotSetup(commands.AutoShardedBot):
                         logger.info(f"Added cog: {obj_name}")
 
 async def check_rate_limit():
-    url = "https://discord.com/api/v10/users/@me"  # Example endpoint to get the current user
+    url = "https://discord.com/api/v10/users/@me"  
     headers = {
         "Authorization": f"Bot {os.getenv('TOKEN')}"
     }
@@ -106,7 +105,7 @@ async def main():
     bot = BotSetup()
 
     try:
-        await check_rate_limit()  # Check rate limits before starting the bot
+        await check_rate_limit()  
         await bot.start_bot()
     except Exception as e:
         traceback_string = traceback.format_exc()
@@ -115,17 +114,16 @@ async def main():
         await bot.close()
         logger.info("Bot closed.")
 
-# Create a simple HTTP server to bind to a port
 async def start_http_server():
     app = web.Application()
     app.router.add_get('/', lambda request: web.Response(text="Bot is running"))
     runner = web.AppRunner(app)
     await runner.setup()
-    port = int(os.getenv("PORT", 8080))  # Adapt for Render's PORT environment variable
+    port = int(os.getenv("PORT", 8080)) 
     site = web.TCPSite(runner, '0.0.0.0', port)
     await site.start()
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.create_task(start_http_server())  # Start the HTTP server
-    loop.run_until_complete(main())  # Run the bot
+    loop.create_task(start_http_server())  
+    loop.run_until_complete(main())  
