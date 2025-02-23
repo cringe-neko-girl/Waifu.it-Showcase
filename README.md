@@ -20,14 +20,9 @@
     </div>
 </div>
 
-<img src="https://cdn.discordapp.com/banners/1290474404416851988/3fddbf9fcc60a2977b42ef95efb799fa.png" width="150" height="auto" align="left" />
+<img src="https://cdn.discordapp.com/banners/1290474404416851988/3fddbf9fcc60a2977b42ef95efb799fa.png" width="125" height="auto" align="left" />
 
 
 `Waifu.it | Showcase` highlights the capabilities of the Waifu.it API, serving as a bridge and offering direct links to publicly available resources through our API. Access the API at [waifu.it](https://waifu.it). For more details, explore the [documentation](https://docs.waifu.it).
 
 
-
-### 1. **Install Dependencies**
-```
-pip install -r requirements.txt
-```
