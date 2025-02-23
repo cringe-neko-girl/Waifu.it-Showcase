@@ -11,9 +11,6 @@
         <a href="https://github.com/WaifuAPI/Waifu.it/issues" target="_blank">
             <img src="https://img.shields.io/github/issues/WaifuAPI/Waifu.it?color=%236CB4EE" alt="GitHub issues" />
         </a>
-        <a href="https://github.com/WaifuAPI/Waifu.it/pulls" target="_blank">
-            <img src="https://img.shields.io/github/issues-pr/WaifuAPI/Waifu.it?color=%236CB4EE" alt="Pull requests" />
-        </a>
         <a href="https://waifu.it" target="_blank">
             <img src="https://img.shields.io/website?url=https%3A%2F%2Fwaifu.it" alt="Website" />
         </a>
@@ -23,15 +20,14 @@
     </div>
 </div>
 
-<img src="https://cdn.discordapp.com/avatars/1290474404416851988/b298c0ebe2c3079978896cbb5f8a9246.webp" width="130px" height="auto" align="left" />
 <img src="https://cdn.discordapp.com/banners/1290474404416851988/3fddbf9fcc60a2977b42ef95efb799fa.png" width="150" height="auto" align="left" />
 
 
-`Waifu.it | Showcase` highlights the capabilities of the Waifu.it API, serving as a bridge and offering direct links to publicly available resources through our API. Access the API at [waifu.it](https://waifu.it) (opens in a new tab). For more details, explore the [documentation](https://docs.waifu.it) (opens in a new tab).
+`Waifu.it | Showcase` highlights the capabilities of the Waifu.it API, serving as a bridge and offering direct links to publicly available resources through our API. Access the API at [waifu.it](https://waifu.it). For more details, explore the [documentation](https://docs.waifu.it).
 
----
+
 
 ### 1. **Install Dependencies**
-```bash
+```
 pip install -r requirements.txt
 ```
