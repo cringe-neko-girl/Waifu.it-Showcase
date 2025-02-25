@@ -9,7 +9,7 @@
             <img src="https://img.shields.io/github/contributors/cringe-neko-girl/Waifu.it-Showcase?color=%236CB4EE" alt="Contributors" />
         </a>
         <a href="https://github.com/WaifuAPI/Waifu.it/issues" target="_blank">
-            <img src="https://img.shields.io/github/issues/WaifuAPI/Waifu.it?color=%236CB4EE" alt="GitHub issues" />
+            <img src="https://img.shields.io/github/issues/WaifuAPI/Waifu.it?color=%EE4B2B" alt="GitHub issues" />
         </a>
         <a href="https://waifu.it" target="_blank">
             <img src="https://img.shields.io/website?url=https%3A%2F%2Fwaifu.it" alt="Website" />
