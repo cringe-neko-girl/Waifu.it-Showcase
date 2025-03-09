@@ -126,8 +126,8 @@ class View(discord.ui.View):
         popularity_bar = f"{'▰' * int(score_percentage * 10)}{'▱' * (10 - int(score_percentage * 10))}"
 
         footer_text = (
+        f"Type: {anime_type.title()}\n"
          f"Source: {anime_title}\n"
-         f"Type: {anime_type.title()}\n"
          f"Popularity: {popularity_bar}"
         )
 
@@ -259,8 +259,8 @@ class Images(commands.Cog):
      avatar_url = user.avatar.url if user.avatar else None
 
      footer_text = (
-        f"Source: {anime_title}\n"
         f"Type: {anime_type.title()}\n"
+        f"Source: {anime_title}\n"
         f"Popularity: {popularity_bar}"
      )
 
