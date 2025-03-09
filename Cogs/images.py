@@ -126,9 +126,9 @@ class View(discord.ui.View):
         popularity_bar = f"{'▰' * int(score_percentage * 10)}{'▱' * (10 - int(score_percentage * 10))}"
 
         footer_text = (
-            f"Source: {anime_title}\n"
-            f"Type: {anime_type.title()}\n\n"
-            f"Popularity: {anime_popularity}\n{popularity_bar}"
+         f"Source: {anime_title}\n"
+         f"Type: {anime_type.title()}\n"
+         f"Popularity: {popularity_bar}"
         )
 
         main_embed = discord.Embed(
