@@ -10,26 +10,23 @@ class View(discord.ui.View):
         super().__init__()
         self.ctx = ctx
         
-        # Check if waifu_data is a list; if not, raise an error or set to empty list
         if isinstance(waifu_data, list):
             self.waifu_data = waifu_data
         else:
-            print("Invalid waifu_data structure:", waifu_data)  # Log invalid structure
-            self.waifu_data = []  # or raise an exception
+            print("Invalid waifu_data structure:", waifu_data)
+            self.waifu_data = []
 
         self.items_per_page = items_per_page
         self.items_per_section = items_per_section
         self.page_index = 0
         self.section_index = 0
         
-        # Paginate the data
         self.paginated_data = self.paginate_json(self.waifu_data, items_per_section)
         self.total_sections = len(self.paginated_data)
         self.total_pages = (self.total_sections + items_per_page - 1) // items_per_page
         self.api_url = api_url
         self.access_token = os.getenv('Waifu_Token')
         
-        # Disable buttons if there are fewer than 2 sections
         if self.total_sections < 2:
             self.disable_buttons()
 
@@ -40,10 +37,7 @@ class View(discord.ui.View):
                 self.remove_item(item)
 
     def paginate_json(self, data, page_size):
-        """Paginate JSON data and return as a list of pages."""
-        pages = []
-        for i in range(0, len(data), page_size):
-            pages.append(data[i:i + page_size])
+        pages = [data[i:i + page_size] for i in range(0, len(data), page_size)]
         return pages
 
     async def update_message(self, interaction=None):
@@ -53,7 +47,6 @@ class View(discord.ui.View):
             return
         
         section_data = self.paginated_data[self.section_index]
-        
         embeds = self.create_embeds(section_data)
 
         if interaction:
@@ -64,7 +57,6 @@ class View(discord.ui.View):
     def create_embeds(self, section_data):
         embeds = []
         for item in section_data:
-            # Extract necessary information
             anime_names = item.get('name', {})
             anime_images = [item.get('image', {}).get('large')]
             anime_description = item.get('description', "No description available.")
@@ -73,7 +65,6 @@ class View(discord.ui.View):
             anime_format = media_nodes[0].get('format', 'Unknown') if media_nodes else 'Unknown'
             banner_image_url = media_nodes[0].get('bannerImage')
             
-            # Create the main embed
             embed = discord.Embed(
                 title=anime_names.get('full', "Unknown"),
                 description=anime_description,
@@ -81,7 +72,6 @@ class View(discord.ui.View):
                 url="https://rajtech.me"
             )
   
-            # Create an embed for the banner image if it exists
             if banner_image_url:
                 banner_embed = discord.Embed(
                     title=anime_names.get('full', "Unknown"),
@@ -90,19 +80,17 @@ class View(discord.ui.View):
                     url="https://rajtech.me"
                 )
                 banner_embed.set_image(url=banner_image_url)
-                embeds.append(banner_embed)  # Append banner embed
+                embeds.append(banner_embed)
 
-            # Create an embed for the main image
             image_embed = discord.Embed(
                 title=anime_names.get('full', "Unknown"),
                 description=anime_description,
                 url="https://rajtech.me"
             )
-            image_embed.set_image(url=anime_images[0])  # Set the main image
-            embeds.append(image_embed)  # Append image embed
+            image_embed.set_image(url=anime_images[0])
+            embeds.append(image_embed)
             
-            # Set footer with user info
-            user = self.ctx.author  # or interaction.user if you want to use interaction
+            user = self.ctx.author
             avatar_url = user.avatar.url if user.avatar else None
             
             for embed in embeds:
@@ -112,82 +100,69 @@ class View(discord.ui.View):
     
     @discord.ui.button(emoji='🔀', style=discord.ButtonStyle.primary)
     async def random(self, button: discord.ui.Button, interaction: discord.Interaction):
-        async with aiohttp.ClientSession() as session:  # Create an aiohttp session
+        async with aiohttp.ClientSession() as session:
             async with session.get(self.api_url, headers={"Authorization": self.access_token}) as response:
                 if response.status != 200:
                     await interaction.response.send_message(f"Failed to fetch waifu data. Status code: {response.status}", ephemeral=True)
                     return
 
-                data = await response.json()  # Asynchronously read the response as JSON
-                
-                # Extract necessary information from the data
+                data = await response.json()
                 embeds = self.extract_data_and_create_embeds(data)
-
-                # Send the initial embed with buttons
                 await button.response.edit_message(embeds=embeds, view=self)
 
     def extract_data_and_create_embeds(self, data):
-     embeds = []
+        embeds = []
+        anime_names = data.get('name', {})
+        anime_titles = [anime["title"]["romaji"] for anime in data.get("media", {}).get("nodes", [])]
+        anime_images = [data.get('image', {}).get('large')]
+        anime_description = data.get('description', "No description available.")
+        media_nodes = data.get('media', {}).get('nodes', [{}])
+        anime_type = media_nodes[0].get('type', 'Unknown') if media_nodes else 'Unknown'
+        banner_image_url = media_nodes[0].get('bannerImage')
+        anime_popularity = data.get('media', {}).get('nodes', [{}])[0].get('popularity', 0)
+        
+        max_popularity = 105000
+        score_percentage = min(anime_popularity / max_popularity, 1.0)
+        popularity_bar = f"{'▰' * int(score_percentage * 10)}{'▱' * (10 - int(score_percentage * 10))}"
 
-     # Extract data from the input
-     anime_names = data.get('name', {})
-     anime_images = [data.get('image', {}).get('large')]
-     anime_description = data.get('description', "No description available.")
-     media_nodes = data.get('media', {}).get('nodes', [{}])
-     anime_type = media_nodes[0].get('type', 'Unknown') if media_nodes else 'Unknown'
-     anime_format = media_nodes[0].get('format', 'Unknown') if media_nodes else 'Unknown'
-     banner_image_url = media_nodes[0].get('bannerImage')
-     anime_popularity = data.get('media', {}).get('nodes', [{}])[0].get('popularity', 0)
-     anime_source = anime_names.get('userPreferred', "Unknown")
-     
-
-
-     # Create a visual representation of the popularity score (bar-like format)
-     max_popularity = 105000  # Adjust this value to a realistic maximum popularity
-     score_percentage = min(anime_popularity / max_popularity, 1.0)  # Ensure the percentage doesn't exceed 1
-     popularity_bar = f"{'▰' * int(score_percentage * 10)}{'▱' * (10 - int(score_percentage * 10))}"
-
-     # Footer text
-     footer_text = (
-        f"Source: {anime_source} \t"
-        f"•  Type: {anime_type.title()} \n"
-        f"Popularity: {anime_popularity}\n{popularity_bar}"
-      )
-
-     # Create the main embed
-     main_embed = discord.Embed(
-        title=anime_names.get('full', "Unknown"),
-        description=anime_description,
-        color=0x99ccff,
-        url="https://rajtech.me"
-    )
-     main_embed.set_footer(text=footer_text)
-     embeds.append(main_embed)  # Append main embed
-
-     # Create an embed for the main image
-     if anime_images[0]:
-        image_embed = discord.Embed(
-            title=anime_names.get('full', "Unknown"),
-            description=anime_description,
-            url="https://rajtech.me"
+        footer_text = (
+            f"Titles: {', '.join(anime_titles) if anime_titles else 'Unknown'} \n"
+            f"• Type: {anime_type.title()} \n"
+            f"Popularity: {anime_popularity}\n{popularity_bar}"
         )
-        image_embed.set_image(url=anime_images[0])  # Set the main image
-        image_embed.set_footer(text=footer_text)
-        embeds.append(image_embed)  # Append image embed
 
-     # Create an embed for the banner image if it exists
-     if banner_image_url:
-        banner_embed = discord.Embed(
+        main_embed = discord.Embed(
             title=anime_names.get('full', "Unknown"),
             description=anime_description,
             color=0x99ccff,
             url="https://rajtech.me"
         )
-        banner_embed.set_image(url=banner_image_url)
-        banner_embed.set_footer(text=footer_text)
-        embeds.append(banner_embed)  # Append banner embed
+        main_embed.set_footer(text=footer_text)
+        embeds.append(main_embed)
 
-     return embeds
+        if anime_images[0]:
+            image_embed = discord.Embed(
+                title=anime_names.get('full', "Unknown"),
+                description=anime_description,
+                url="https://rajtech.me"
+            )
+            image_embed.set_image(url=anime_images[0])
+            image_embed.set_footer(text=footer_text)
+            embeds.append(image_embed)
+
+        if banner_image_url:
+            banner_embed = discord.Embed(
+                title=anime_names.get('full', "Unknown"),
+                description=anime_description,
+                color=0x99ccff,
+                url="https://rajtech.me"
+            )
+            banner_embed.set_image(url=banner_image_url)
+            banner_embed.set_footer(text=footer_text)
+            embeds.append(banner_embed)
+
+        return embeds
+
     
     @discord.ui.button(emoji='<:left_arrow:1290517571329724450>', style=discord.ButtonStyle.primary, custom_id='previous_button')
     async def previous_button(self, button: discord.ui.Button, interaction: discord.Interaction):
