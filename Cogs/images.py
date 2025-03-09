@@ -113,7 +113,7 @@ class View(discord.ui.View):
     def extract_data_and_create_embeds(self, data):
         embeds = []
         anime_names = data.get('name', {})
-        anime_titles = [anime["title"]["romaji"] for anime in data.get("media", {}).get("nodes", [])]
+        anime_title = anime["title"]["romaji"]
         anime_images = [data.get('image', {}).get('large')]
         anime_description = data.get('description', "No description available.")
         media_nodes = data.get('media', {}).get('nodes', [{}])
@@ -126,7 +126,7 @@ class View(discord.ui.View):
         popularity_bar = f"{'▰' * int(score_percentage * 10)}{'▱' * (10 - int(score_percentage * 10))}"
 
         footer_text = (
-            f"Titles: {', '.join(anime_titles) if anime_titles else 'Unknown'}\n"
+            f"Source: {anime_title}\n"
             f"Type: {anime_type.title()}\n\n"
             f"Popularity: {anime_popularity}\n{popularity_bar}"
         )
