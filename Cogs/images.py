@@ -113,7 +113,7 @@ class View(discord.ui.View):
     def extract_data_and_create_embeds(self, data):
         embeds = []
         anime_names = data.get('name', {})
-        anime_title = anime["title"]["romaji"]
+        anime_title = next((node['title']['userPreferred'] for node in data['media']['nodes'] if node['type'] == 'ANIME'), None)
         anime_images = [data.get('image', {}).get('large')]
         anime_description = data.get('description', "No description available.")
         media_nodes = data.get('media', {}).get('nodes', [{}])
