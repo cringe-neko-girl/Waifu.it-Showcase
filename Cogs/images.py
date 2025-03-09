@@ -220,7 +220,8 @@ class Images(commands.Cog):
      anime_format = media_nodes[0].get('format', 'Unknown') if media_nodes else 'Unknown'
      banner_image_url = media_nodes[0].get('bannerImage')
      anime_popularity = data.get('media', {}).get('nodes', [{}])[0].get('popularity', 0)
-     anime_titles = [node['title']['userPreferred'] for node in data['media']['nodes'] if node['type'] == 'ANIME']
+     anime_titles = ', '.join([node['title']['userPreferred'] for node in data['media']['nodes'] if node['type'] == 'ANIME'])
+    
      anime_type = media_nodes[0].get('type', 'Unknown') if media_nodes else 'Unknown'
 
 
@@ -256,9 +257,9 @@ class Images(commands.Cog):
      avatar_url = user.avatar.url if user.avatar else None
 
      footer_text = (
-        f"Source: {anime_titles} \t"
-        f"•  Type: {anime_type.title()} \n"
-        f"Popularity: {anime_popularity}\n{popularity_bar}"
+        f"Source: {anime_titles} \t\t"
+        f"Type: {anime_type.title()} \n"
+        f"Popularity: {popularity_bar}"
      )
 
      for embed in embeds:
