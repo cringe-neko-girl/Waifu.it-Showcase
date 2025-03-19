@@ -204,8 +204,8 @@ class Images(commands.Cog):
         logging.debug("Images Cog initialized with API URL: %s", self.api_url_husbando)
 
     async def create_embed(self, ctx, data, is_waifu=True):
-        view = View(ctx, data, self.api_url_waifu)  # Create an instance of View
-
+        api_url_waifu = self.api_url_waifu if is_waifu else self.api_url_husbando
+        view = View(ctx, data, self.api_url_waifu)
         embeds = view.create_embeds_from_data(data)
         return embeds
 
