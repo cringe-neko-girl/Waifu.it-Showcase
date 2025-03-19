@@ -204,7 +204,9 @@ class Images(commands.Cog):
         logging.debug("Images Cog initialized with API URL: %s", self.api_url_husbando)
 
     async def create_embed(self, ctx, data, is_waifu=True):
-        embeds = View.create_embeds_from_data(data)
+        view = View(ctx, data, self.api_url_waifu)  # Create an instance of View
+
+        embeds = view.create_embeds_from_data(data)
         return embeds
 
     @commands.command(name='waifu', help='Fetch a random waifu image from the Waifu.it API.')
