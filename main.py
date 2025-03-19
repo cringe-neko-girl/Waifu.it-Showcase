@@ -8,26 +8,21 @@ import aiohttp
 from aiohttp import web
 from dotenv import load_dotenv
 from colorama import Fore, Style
-
+import discord
+from discord.ext import commands
 from Imports.discord_imports import *  
 from Cogs.help import Help  
 
 load_dotenv()
 
-# Upgrade pip
 os.system("pip install --upgrade pip")
 
-# Configure logging
 logging.basicConfig(
     level=logging.DEBUG, 
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("bot.log"),
-        logging.StreamHandler(sys.stdout)  
-    ]
+    handlers=[logging.FileHandler("bot.log"), logging.StreamHandler(sys.stdout)]  
 )
 logger = logging.getLogger(__name__)
-
 
 class BotSetup(commands.AutoShardedBot):
     def __init__(self):
@@ -41,7 +36,6 @@ class BotSetup(commands.AutoShardedBot):
         self.mongoConnect = None 
 
     async def start_bot(self):
-        """Start the bot and handle setup and error logging."""
         await self.setup()  
         token = os.getenv('TOKEN')
 
@@ -57,6 +51,7 @@ class BotSetup(commands.AutoShardedBot):
             logger.error("Invalid bot token provided. Please verify the TOKEN environment variable.")
         except discord.HTTPException as e:
             logger.error(f"HTTP error occurred: {e}")
+            await self.handle_rate_limit_error(e)
         except asyncio.CancelledError:
             logger.warning("The bot was cancelled.")
         except Exception as e:
@@ -65,15 +60,18 @@ class BotSetup(commands.AutoShardedBot):
         finally:
             await self.close()
 
+    async def handle_rate_limit_error(self, error):
+        if isinstance(error, discord.HTTPException) and error.status == 429:
+            retry_after = error.response.get('Retry-After', 5)
+            logger.warning(f"Rate limit exceeded. Retrying after {retry_after} seconds.")
+            await asyncio.sleep(retry_after)
+            await self.start_bot()
+
     async def setup(self):
-        """Set up cogs and events."""
-        logger.info("Setting up cogs...")
         await self.import_cogs("Cogs")
         await self.import_cogs("Events")
-        logger.info("Cog setup completed.")
 
     async def import_cogs(self, dir_name):
-        """Import cogs dynamically from a given directory."""
         files_dir = os.listdir(dir_name)
         for filename in files_dir:
             if filename.endswith(".py"):
@@ -89,9 +87,7 @@ class BotSetup(commands.AutoShardedBot):
                         await self.add_cog(obj(self))
                         logger.info(f"Added cog: {obj_name}")
 
-
 async def check_rate_limit():
-    """Check Discord API rate limits."""
     url = "https://discord.com/api/v10/users/@me"
     headers = {"Authorization": f"Bot {os.getenv('TOKEN')}"}
 
@@ -108,14 +104,12 @@ async def check_rate_limit():
             else:
                 logger.error(f"Failed to check rate limit. HTTP Status: {response.status}")
 
-
 async def start_http_server():
-    """Start a simple HTTP server for monitoring."""
     app = web.Application()
     app.router.add_get('/', lambda request: web.Response(text="Bot is running"))
     runner = web.AppRunner(app)
     await runner.setup()
-    port = int(os.getenv("PORT", 8080))  # Default to port 8080 if no environment variable is set
+    port = int(os.getenv("PORT", 8080))
 
     try:
         site = web.TCPSite(runner, '0.0.0.0', port)
@@ -126,9 +120,7 @@ async def start_http_server():
         logger.error(f"Failed to start HTTP server on port {port}: {e}")
         print(f"Failed to start HTTP server on port {port}. Error: {e}")
 
-
 async def main():
-    """Main entry point for the bot."""
     bot = BotSetup()
 
     try:
@@ -141,7 +133,6 @@ async def main():
     finally:
         await bot.close()
         logger.info("Bot has been closed.")
-
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
